@@ -3,18 +3,23 @@ package bluetooth;
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
+import javax.bluetooth.RemoteDevice;
 
-/*
-* Handles Bluetooth scanning using BlueCove
-*
-* It outputs RSSI data as Map<String, Integer> where the String would be the ID of the beacon,
-* and the integer the RSSI.
-* */
 public class BeaconScanner {
 
-    LocalDevice localDevice = LocalDevice.getLocalDevice();
-    DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
+    LocalDevice localDevice;
+    DiscoveryAgent discoveryAgent;
 
     public BeaconScanner() throws BluetoothStateException {
+        localDevice = LocalDevice.getLocalDevice();
+        discoveryAgent = localDevice.getDiscoveryAgent();
+    }
+
+    public void scan() {
+        RemoteDevice[] remoteDevices = discoveryAgent.retrieveDevices(DiscoveryAgent.PREKNOWN);
+        for (RemoteDevice remoteDevice : remoteDevices) {
+            System.out.println(remoteDevice.getBluetoothAddress());
+
+        }
     }
 }
