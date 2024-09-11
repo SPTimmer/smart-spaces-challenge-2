@@ -7,7 +7,7 @@ public class PythonBLEScanner {
 
     public void runPythonScript() {
         try {
-            Process process = Runtime.getRuntime().exec("python ble_scan.py");
+            Process process = Runtime.getRuntime().exec("python src/bluetooth/ble_scan.py");
 
             // Capture the Python script output
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
