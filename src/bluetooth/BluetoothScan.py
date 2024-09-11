@@ -1,33 +1,28 @@
+# BluetoothScan.py is responsible for scanning Bluetooth devices using the Bleak library, which is installed in the
+# virtual python environment (venv, using pip install bleak). Before it scans for bluetooth devices, it first clears
+# all data of stored bluetooth devices, ensuring that the data used by the algorithms is always from the most recent
+# scan.
+
 import asyncio
 from bleak import BleakScanner
 from BluetoothDevice import BluetoothDevice
 
-bluetooth_devices = {}
+BluetoothDevice.clear_devices()
 
 
-async def scan_bl_devices():
+async def scan_ble_devices():
     devices = await BleakScanner.discover()
-    print("Starting the scan..")
+    print("Starting the scan...")
 
     for device in devices:
         mac_address = device.address
         rssi = device.rssi
 
-        # If the device is already detected, update the RSSI value
-        if mac_address in bluetooth_devices:
-            bluetooth_devices[mac_address].update_rssi(rssi)
-        else:
-            # Create a new BluetoothDevice and store it
-            new_device = BluetoothDevice(mac_address, rssi)
-            bluetooth_devices[mac_address] = new_device
+        BluetoothDevice(mac_address, rssi)
 
     print("Scan complete.")
-
-    # Print all devices
-    for device in bluetooth_devices.values():
-        print(device)
+    BluetoothDevice.print_all_devices()
 
 
-# Main execution
 if __name__ == "__main__":
-    asyncio.run(scan_bl_devices())
+    asyncio.run(scan_ble_devices())
