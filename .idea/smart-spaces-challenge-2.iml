@@ -3,6 +3,11 @@
   <component name="CheckStyle-IDEA-Module" serialisationVersion="2">
     <option name="activeLocationsIds" />
   </component>
+  <component name="FacetManager">
+    <facet type="Python" name="Python">
+      <configuration sdkName="Python 3.8 (aquaisa)" />
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -10,6 +15,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="bluecove-2.1.1.jar" level="project" />
     <orderEntry type="library" name="bluecove-2.1.1" level="project" />
+    <orderEntry type="library" name="Python 3.8 (aquaisa) interpreter library" level="application" />
   </component>
 </module>
