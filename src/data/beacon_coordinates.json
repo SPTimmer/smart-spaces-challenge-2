@@ -1,47 +1,62 @@
 [
   {
-    "mac_address": "C2:8F:DF:51:4E:AF",
+    "mac_address": "CA:02:32:D2:A1:83",
     "longitude": 6.85662633407474,
     "latitude": 52.23936900217340
   },
   {
-    "mac_address": "CA:02:32:D2:A1:83",
-    "longitude": 6.8562629115836,
-    "latitude": 52.23936226743910
+    "mac_address": "CD:79:35:3F:C3:8B",
+    "longitude": 6.85621997115836,
+    "latitude": 52.2393626743910
   },
   {
-    "mac_address": "DO:2A:B7:EC:6C:44",
+    "mac_address": "D4:50:FE:62:52:77",
     "longitude": 6.85653661335243,
-    "latitude": 52.23932164860300
+    "latitude": 52.2393614860030
+  },
+  {
+    "mac_address": "D6:CA:74:F4:6F:BB",
+    "longitude": 6.85630775047380,
+    "latitude": 52.23929001399250
   },
   {
     "mac_address": "DE:AF:F9:8E:93:1D",
     "longitude": 6.85637985051303,
-    "latitude": 52.23936546920900
+    "latitude": 52.2393654692090
   },
   {
-    "mac_address": "E0:DF:9E:16:0C:75",
-    "longitude": 6.85631682212677,
-    "latitude": 52.23939440542160
+    "mac_address": "E1:11:5E:46:41:31",
+    "longitude": 6.85641823212677,
+    "latitude": 52.2393944052160
   },
   {
     "mac_address": "E4:AC:6D:E6:77:7A",
     "longitude": 6.8562649010552,
-    "latitude": 52.23936900332250
+    "latitude": 52.2393069032250
   },
   {
-    "mac_address": "E8:F1:61:E5:D7:95",
+    "mac_address": "E4:D7:BA:CB:2C:F8",
     "longitude": 6.85664270543480,
-    "latitude": 52.23936522694900
+    "latitude": 52.2393652269490
   },
   {
-    "mac_address": "E8:9E:C6:63:9A:F1",
+    "mac_address": "E8:9E:C6:63:9A:A6",
     "longitude": 6.85660939046155,
-    "latitude": 52.23936952365990
+    "latitude": 52.23936523659990
   },
   {
-    "mac_address": "F8:DE:B9:18:55:ED",
+    "mac_address": "E8:FD:27:B7:8B:D5",
+    "longitude": 6.8548761473507,
+    "latitude": 52.23924923475460
+  },
+  {
+    "mac_address": "ED:E3:26:AF:5C:FE",
+    "longitude": 6.85654703233859,
+    "latitude": 52.23925283170470
+  },
+  {
+    "mac_address": "FC:00:55:AC:AE:12",
     "longitude": 6.85646642031045,
-    "latitude": 52.23935445378100
+    "latitude": 52.23932544537810
   }
 ]

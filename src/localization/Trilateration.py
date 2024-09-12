@@ -17,7 +17,28 @@
 
 import math
 import json
-from bluetooth import BluetoothDevice
+from bluetooth.BluetoothDevice import BluetoothDevice
+
+R = 6371000  # Radius of the Earth in meters, used because of longitude/latitude
+
+
+# Longitude and latitude are in degrees, whereas the distance is calculated in meters. That is why we convert them
+# to a cartesian space :
+# https://stackoverflow.com/questions/1185408/converting-from-longitude-latitude-to-cartesian-coordinates
+def latlon_to_cartesian(lat, lon):
+    lat_rad = math.radians(lat)
+    lon_rad = math.radians(lon)
+    x = R * lon_rad * math.cos(lat_rad)
+    y = R * lat_rad
+    return x, y
+
+
+def cartesian_to_latlon(x, y):
+    lat_rad = y / R
+    lon_rad = x / (R * math.cos(lat_rad))
+    lat = math.degrees(lat_rad)
+    lon = math.degrees(lon_rad)
+    return lat, lon
 
 
 def load_beacon_coordinates(file_path):
@@ -38,57 +59,61 @@ def calculate_distance(rssi, A=-50, n=2.0):
     return 10 ** ((A - rssi) / (10 * n))
 
 
-def trilaterate(beacon1, beacon2, beacon3):
-    x1, y1 = beacon1['longitude'], beacon1['latitude']
-    x2, y2 = beacon2['longitude'], beacon2['latitude']
-    x3, y3 = beacon3['longitude'], beacon3['latitude']
-
-    r1 = beacon1['distance']
-    r2 = beacon2['distance']
-    r3 = beacon3['distance']
-
+def calculate_trilateration(x1, y1, d1, x2, y2, d2, x3, y3, d3):
     A = 2 * (x2 - x1)
     B = 2 * (y2 - y1)
-    C = r1 ** 2 - r2 ** 2 - x1 ** 2 + x2 ** 2 - y1 ** 2 + y2 ** 2
+    C = d1 ** 2 - d2 ** 2 - x1 ** 2 + x2 ** 2 - y1 ** 2 + y2 ** 2
     D = 2 * (x3 - x2)
     E = 2 * (y3 - y2)
-    F = r2 ** 2 - r3 ** 2 - x2 ** 2 + x3 ** 2 - y2 ** 2 + y3 ** 2
+    F = d2 ** 2 - d3 ** 2 - x2 ** 2 + x3 ** 2 - y2 ** 2 + y3 ** 2
 
-    x = (C * E - F * B) / (E * A - B * D)
-    y = (C * D - A * F) / (B * D - A * E)
+    x = (C - F * B / E) / (A - D * B / E)
+    y = (C - A * x) / B
+    return x, y
 
-    return (x, y)
 
-
-def perform_trilateration(beacon_file):
-    beacons_data = load_beacon_coordinates(beacon_file)
-    detected_known_beacons = []
+# Note that the trilateration will loop until there are < 3 detected beacons of which the coordinates are known.
+# For example if there are 5 detected beacons with known location, the trilateration performs 3 times:
+# Once for beacon 1,2,3; once for beacon 2,3,4 and once for beacon 3,4,5. It then takes the average coordinates.
+# Perform trilateration and return estimated location
+def perform_trilateration(beacon_data_file):
+    beacons = load_beacon_coordinates(beacon_data_file)
 
     detected_devices = BluetoothDevice.get_devices()
+    detected_known_beacons = []
 
     for device in detected_devices:
-        for beacon in beacons_data:
+        for beacon in beacons:
             if device.mac_address == beacon['mac_address']:
                 distance = calculate_distance(device.rssi)
-                detected_known_beacons.append({
-                    'mac_address': device.mac_address,
-                    'longitude': beacon['longitude'],
-                    'latitude': beacon['latitude'],
-                    'distance': distance
-                })
+                x, y = latlon_to_cartesian(beacon['latitude'], beacon['longitude'])
+                detected_known_beacons.append({'x': x, 'y': y, 'distance': distance})
 
-    if len(detected_known_beacons) >= 3:
-        beacon1 = detected_known_beacons[0]
-        beacon2 = detected_known_beacons[1]
-        beacon3 = detected_known_beacons[2]
+    if len(detected_known_beacons) < 3:
+        print("Less than 3 known beacons detected. Skipping trilateration and using fingerprinting.")
+        return None
 
-        position = trilaterate(beacon1, beacon2, beacon3)
-        if position:
-            print(f"Estimated Position: Longitude: {position[0]}, Latitude: {position[1]}")
-        else:
-            print("Trilateration failed.")
-    else:
-        print("Less than 3 known beacons detected. Skipping trilateration.")
+    estimated_positions = []
+    while len(detected_known_beacons) >= 3:
+        beacon_1, beacon_2, beacon_3 = detected_known_beacons[:3]
+
+        x, y = calculate_trilateration(
+            beacon_1['x'], beacon_1['y'], beacon_1['distance'],
+            beacon_2['x'], beacon_2['y'], beacon_2['distance'],
+            beacon_3['x'], beacon_3['y'], beacon_3['distance']
+        )
+
+        lat, lon = cartesian_to_latlon(x, y)
+        print(f"Estimated Position: Longitude: {lon}, Latitude: {lat}")
+        estimated_positions.append((lon, lat))
+
+        detected_known_beacons.pop(0)
+
+    avg_lon = sum([pos[0] for pos in estimated_positions]) / len(estimated_positions)
+    avg_lat = sum([pos[1] for pos in estimated_positions]) / len(estimated_positions)
+
+    print(f"Final Estimated Position: Longitude: {avg_lon}, Latitude: {avg_lat}")
+    return avg_lon, avg_lat
 
 
 perform_trilateration('src/data/beacon_coordinates.json')
