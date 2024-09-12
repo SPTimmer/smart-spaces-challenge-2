@@ -52,7 +52,7 @@ cmake-build-*/
 *.iws
 
 # IntelliJ
-out/
+venv/pyvenv.cfg
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
