@@ -12,13 +12,21 @@ def run_bluetooth_scan():
 
 def main_loop():
     while True:
-        run_bluetooth_scan()
-        estimated_position = perform_trilateration('src/data/beacon_coordinates.json', 'src/data/detected_devices.json')
-        if estimated_position:
-            visualize_estimated_position(*estimated_position)
-        else:
-            print("No valid position to visualize.")
-        sleep(2)  # Run every 10 seconds (or adjust based on your needs)
+        try:
+            print("Starting the scan...")
+            run_bluetooth_scan()
+
+            estimated_position = perform_trilateration('src/data/beacon_coordinates.json', 'src/data/detected_devices.json')
+
+            if estimated_position:
+                visualize_estimated_position(*estimated_position)
+            else:
+                print("No valid position to visualize.")
+
+            sleep(2)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 
 if __name__ == '__main__':

@@ -1,18 +1,1 @@
-[
-    {
-        "mac_address": "CA:02:32:D2:A1:83",
-        "rssi": -55
-    },
-    {
-        "mac_address": "CD:79:35:3F:C3:8B",
-        "rssi": -60
-    },
-    {
-        "mac_address": "D4:50:FE:62:52:77",
-        "rssi": -55
-    },
-    {
-        "mac_address": "D6:CA:74:F4:6F:BB",
-        "rssi": -40
-    }
-]
+[{"mac_address": "53:53:53:09:F3:B7", "rssi": -70}, {"mac_address": "A4:C1:38:DD:FD:3E", "rssi": -72}, {"mac_address": "4F:CF:6F:A2:7C:57", "rssi": -90}]

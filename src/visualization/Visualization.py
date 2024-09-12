@@ -1,34 +1,58 @@
 import turtle
 
+# These are the width and height in pixels of map.gif
+MAP_WIDTH = 1518
+MAP_HEIGHT = 685
 
-def interpolate_to_pixels(lon, lat, real_top_left, real_bottom_right, img_top_left, img_bottom_right):
-    real_min_lon, real_max_lat = real_top_left
-    real_max_lon, real_min_lat = real_bottom_right
+# These coordinates are the closest to what I could get of the corners of the Zilverling building
+top_left = (52.239610, 6.856340)
+bottom_right = (52.239120, 6.856850)
 
-    img_min_x, img_min_y = img_top_left
-    img_max_x, img_max_y = img_bottom_right
-
-    x = img_min_x + (img_max_x - img_min_x) * (lon - real_min_lon) / (real_max_lon - real_min_lon)
-    y = img_min_y + (img_max_y - img_min_y) * (real_max_lat - lat) / (real_max_lat - real_min_lat)
-
-    return x, y
+screen = None
+marker = None
 
 
-def visualize_estimated_position(lon, lat):
-    real_top_left = (6.856322520445769, 52.239400231057886)
-    real_bottom_right = (6.8568134791365365, 52.2390876824689)
+# This function calculates the pixel coordinates relative to the image size
+def convert_to_pixel_coords(lat, lon):
+    lat_range = top_left[0] - bottom_right[0]
+    lon_range = bottom_right[1] - top_left[1]
 
-    img_top_left = (0, 0)
-    img_bottom_right = (1518, 685)  # Adjust based on image size
+    x_ratio = (lon - top_left[1]) / lon_range
+    y_ratio = (top_left[0] - lat) / lat_range
 
-    x, y = interpolate_to_pixels(lon, lat, real_top_left, real_bottom_right, img_top_left, img_bottom_right)
+    x_pixel = int(x_ratio * MAP_WIDTH)
+    y_pixel = int(y_ratio * MAP_HEIGHT)
 
-    screen = turtle.Screen()
-    screen.setup(width=1518, height=685)
-    screen.bgpic('src/data/map.gif')  # Adjust path if needed
+    print(f"Debug: Latitude: {lat}, Longitude: {lon}")
+    print(f"Debug: Converted X pixel: {x_pixel}, Y pixel: {y_pixel}")
 
-    turtle.penup()
-    turtle.goto(x, y)
-    turtle.dot(10, "red")
-    turtle.done()
-    return
+    return x_pixel, y_pixel
+
+
+# This function visualizes the estimated coordinates
+def visualize_estimated_position(lat, lon):
+    global screen, marker
+
+    if screen is None:
+        screen = turtle.Screen()
+        screen.setup(width=MAP_WIDTH, height=MAP_HEIGHT)
+        screen.bgpic("src/data/map.gif")
+
+    screen.clearscreen()
+    screen.bgpic("src/data/map.gif")
+
+    x_pixel, y_pixel = convert_to_pixel_coords(lat, lon)
+
+    if x_pixel < 0 or x_pixel > MAP_WIDTH or y_pixel < 0 or y_pixel > MAP_HEIGHT:
+        print(f"Coordinates ({x_pixel}, {y_pixel}) are out of bounds. Skipping visualization.")
+        return
+
+    marker = turtle.Turtle()
+    marker.penup()
+    marker.shape("circle")
+    marker.color("red")
+
+    marker.goto(x_pixel - MAP_WIDTH // 2, y_pixel - MAP_HEIGHT // 2)
+    marker.stamp()
+
+    print(f"Displaying marker at ({x_pixel}, {y_pixel}) on the map.")
