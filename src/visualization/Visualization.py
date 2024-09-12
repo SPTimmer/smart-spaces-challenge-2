@@ -1,5 +1,6 @@
 import turtle
 
+
 def interpolate_to_pixels(lon, lat, real_top_left, real_bottom_right, img_top_left, img_bottom_right):
     real_min_lon, real_max_lat = real_top_left
     real_max_lon, real_min_lat = real_bottom_right
@@ -30,3 +31,4 @@ def visualize_estimated_position(lon, lat):
     turtle.goto(x, y)
     turtle.dot(10, "red")
     turtle.done()
+    return

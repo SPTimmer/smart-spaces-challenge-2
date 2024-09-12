@@ -7,7 +7,7 @@
 #           location as they were given on Canvas. It reads JSON and returns a python list of dictionaries where each
 #           dictionary contains the MAC-address, longitude and latitude of a beacon.
 # Step 2:   Convert RSSI to distance using (calculate_distance). For details about the calculation read above function.
-# Step 3:   Get detected devices from BluetoothDevice.py. These devices include their MAC-address and RSSI.
+# Step 3:   Get detected devices from detected_devices.json. These devices include their MAC-address and RSSI.
 # Step 4:   Match detected devices with known beacons and calculate distances. We need at least 3 detected devices to
 #           be listed in beacon_coordinates.json, otherwise we will not be able to estimate the user's location.
 #           This is where we create a list of detected devices that have known coordinates, and the distance from the
@@ -17,7 +17,6 @@
 
 import math
 import json
-from bluetooth.BluetoothDevice import BluetoothDevice
 
 R = 6371000  # Radius of the Earth in meters, used because of longitude/latitude
 
@@ -44,6 +43,18 @@ def cartesian_to_latlon(x, y):
 def load_beacon_coordinates(file_path):
     with open(file_path, 'r') as f:
         return json.load(f)
+
+
+def load_detected_devices(file_path):
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            if len(data) == 0:
+                print("No devices found in detected_devices.json.")
+            return data
+    except json.JSONDecodeError as e:
+        print(f"Error loading JSON file {file_path}: {e}")
+        return []
 
 
 # Explanation of the math used for trilateration:
@@ -76,44 +87,44 @@ def calculate_trilateration(x1, y1, d1, x2, y2, d2, x3, y3, d3):
 # For example if there are 5 detected beacons with known location, the trilateration performs 3 times:
 # Once for beacon 1,2,3; once for beacon 2,3,4 and once for beacon 3,4,5. It then takes the average coordinates.
 # Perform trilateration and return estimated location
-def perform_trilateration(beacon_data_file):
+def perform_trilateration(beacon_data_file, detected_devices_file):
     beacons = load_beacon_coordinates(beacon_data_file)
-
-    detected_devices = BluetoothDevice.get_devices()
+    detected_devices = load_detected_devices(detected_devices_file)
     detected_known_beacons = []
 
+    print(f"Devices in Trilateration process: {len(detected_devices)}")
+
     for device in detected_devices:
+        device_mac_address = device['mac_address'].lower().strip()  # Normalize detected MAC address
+        print(f"Checking detected device: {device_mac_address} with RSSI: {device['rssi']}")
+
         for beacon in beacons:
-            if device.mac_address == beacon['mac_address']:
-                distance = calculate_distance(device.rssi)
+            beacon_mac_address = beacon['mac_address'].lower().strip()  # Normalize beacon MAC address
+
+            if device_mac_address == beacon_mac_address:
+                distance = calculate_distance(device['rssi'])
                 x, y = latlon_to_cartesian(beacon['latitude'], beacon['longitude'])
                 detected_known_beacons.append({'x': x, 'y': y, 'distance': distance})
+                print(f"Matched beacon: {beacon_mac_address} at distance: {distance}")
 
     if len(detected_known_beacons) < 3:
-        print("Less than 3 known beacons detected. Skipping trilateration and using fingerprinting.")
+        print(f"Less than 3 known beacons detected. Skipping trilateration. ({len(detected_known_beacons)} found)")
         return None
 
     estimated_positions = []
     while len(detected_known_beacons) >= 3:
         beacon_1, beacon_2, beacon_3 = detected_known_beacons[:3]
-
-        x, y = calculate_trilateration(
-            beacon_1['x'], beacon_1['y'], beacon_1['distance'],
-            beacon_2['x'], beacon_2['y'], beacon_2['distance'],
-            beacon_3['x'], beacon_3['y'], beacon_3['distance']
-        )
-
+        x, y = calculate_trilateration(beacon_1['x'], beacon_1['y'], beacon_1['distance'],
+                                       beacon_2['x'], beacon_2['y'], beacon_2['distance'],
+                                       beacon_3['x'], beacon_3['y'], beacon_3['distance'])
         lat, lon = cartesian_to_latlon(x, y)
-        print(f"Estimated Position: Longitude: {lon}, Latitude: {lat}")
         estimated_positions.append((lon, lat))
-
         detected_known_beacons.pop(0)
 
     avg_lon = sum([pos[0] for pos in estimated_positions]) / len(estimated_positions)
     avg_lat = sum([pos[1] for pos in estimated_positions]) / len(estimated_positions)
-
     print(f"Final Estimated Position: Longitude: {avg_lon}, Latitude: {avg_lat}")
     return avg_lon, avg_lat
 
 
-perform_trilateration('src/data/beacon_coordinates.json')
+perform_trilateration('src/data/beacon_coordinates.json', 'src/data/detected_devices.json')
