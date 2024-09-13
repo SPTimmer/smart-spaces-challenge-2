@@ -1,34 +1,30 @@
-import json
 import asyncio
 from bleak import BleakScanner
 
-DETECTED_DEVICES_PATH = 'src/data/detected_devices.json'
 
+class BluetoothScan:
+    def __init__(self):
+        self.devices = {}
 
-# For the Bluetooth Scanner we use BleakScanner from the bleak library.
-# It works as following:
-#   Step 1) Clear all data from detected_devices.json
-#   Step 2) Append all new (freshly) scanned beacons and their RSSI to detected_devices.json
-#   Step 3) Save the .json, so that it can be used by other parts of the system.
+    async def start_scan(self):
+        scanner = BleakScanner()
+        scanner.register_detection_callback(self.detection_callback)
 
-async def scan_ble_devices():
-    devices = await BleakScanner.discover()
+        # Clear the devices dictionary before each scan
+        self.devices = {}
 
-    detected_devices = []
+        print("scan started")
+        await scanner.start()
+        await asyncio.sleep(5)  # Adjust scan duration if necessary
+        await scanner.stop()
+        print(f"scan completed, found {len(self.devices)} devices")
+        return self.devices
 
-    with open(DETECTED_DEVICES_PATH, 'w') as f:
-        json.dump([], f)
+    def detection_callback(self, device, advertisement_data):
+        self.devices[device.address] = device.rssi
+        print(f"Detected device: {device.address} with RSSI: {device.rssi}")
 
-    for device in devices:
-        mac_address = device.address
-        rssi = device.rssi
-        detected_devices.append({'mac_address': mac_address, 'rssi': rssi})
+    def sync_scan(self):
+        loop = asyncio.get_event_loop()
+        return loop.run_until_complete(self.start_scan())
 
-    print(f"Scan complete, found {len(devices)} devices")
-
-    with open(DETECTED_DEVICES_PATH, 'w') as f:
-        json.dump(detected_devices, f)
-
-
-# Run BLE scan and store detected devices in JSON
-asyncio.run(scan_ble_devices())

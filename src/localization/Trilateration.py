@@ -1,5 +1,6 @@
 import json
 import math
+from typing import List, Dict, Tuple
 
 
 # The python program used for the trilateration algorithm.
@@ -56,42 +57,78 @@ def calculate_trilateration(x1, y1, d1, x2, y2, d2, x3, y3, d3):
     E = 2 * (y3 - y2)
     F = d2 ** 2 - d3 ** 2 - x2 ** 2 + x3 ** 2 - y2 ** 2 + y3 ** 2
 
+    # Adding a small epsilon to avoid division by zero
+    epsilon = 1e-6
+
+    if abs(E) < epsilon or abs(B) < epsilon:
+        raise ValueError("Division by zero detected in trilateration calculation.")
+
     x = (C - F * B / E) / (A - D * B / E)
     y = (C - A * x) / B
+
     return x, y
 
 
-def perform_trilateration(beacon_file, detected_file):
-    beacons = load_beacon_coordinates(beacon_file)
-    detected_devices = load_detected_devices(detected_file)
+def perform_trilateration(filtered_beacons: List[dict]) -> Tuple[float, float]:
+    if len(filtered_beacons) >= 3:
+        # Sort beacons by RSSI (higher RSSI is closer to 0, meaning stronger signal)
+        sorted_beacons = sorted(filtered_beacons, key=lambda b: b["rssi"], reverse=True)
 
-    matched_beacons = []
+        # Select the three strongest beacons
+        strongest_beacons = sorted_beacons[:3]
 
-    for device in detected_devices:
-        for beacon in beacons:
-            if device['mac_address'] == beacon['mac_address']:
-                matched_beacons.append({
-                    'latitude': beacon['latitude'],
-                    'longitude': beacon['longitude'],
-                    'distance': calculate_distance(device['rssi'])
-                })
+        rssis = " ".join([str(beacon["rssi"]) for beacon in filtered_beacons])
+        print("all: ")
+        print(rssis)
 
-    if len(matched_beacons) >= 3:
-        matched_beacons = matched_beacons[:3]
-        lat1, lon1, d1 = matched_beacons[0].values()
-        lat2, lon2, d2 = matched_beacons[1].values()
-        lat3, lon3, d3 = matched_beacons[2].values()
+        strongest_rssis = " ".join([str(beacon["rssi"]) for beacon in strongest_beacons])
+        print("strongest: ")
+        print(strongest_rssis)
+
+        # Perform trilateration using the three strongest beacons
+        lat1, lon1, d1 = strongest_beacons[0]["lat"], strongest_beacons[0]["lon"], calculate_distance(strongest_beacons[0]["rssi"])
+        lat2, lon2, d2 = strongest_beacons[1]["lat"], strongest_beacons[1]["lon"], calculate_distance(strongest_beacons[1]["rssi"])
+        lat3, lon3, d3 = strongest_beacons[2]["lat"], strongest_beacons[2]["lon"], calculate_distance(strongest_beacons[2]["rssi"])
 
         x1, y1 = latlon_to_cartesian(lat1, lon1)
         x2, y2 = latlon_to_cartesian(lat2, lon2)
         x3, y3 = latlon_to_cartesian(lat3, lon3)
 
-        x, y = calculate_trilateration(x1, y1, d1, x2, y2, d2, x3, y3, d3)
+        x_strong, y_strong = calculate_trilateration(x1, y1, d1, x2, y2, d2, x3, y3, d3)
 
-        lat, lon = cartesian_to_latlon(x, y)
-        print(f"Trilateration result: {lat}, {lon}")
-        return lat, lon
+        lat_strong, lon_strong = cartesian_to_latlon(x_strong, y_strong)
+        print(f"First trilateration result (strongest): {lat_strong}, {lon_strong}")
+
+        # Check if there are at least 6 beacons, then use 4th, 5th, and 6th strongest beacons
+        if len(filtered_beacons) >= 6:
+            second_strongest_beacons = sorted_beacons[3:6]
+            second_rssis = " ".join([str(beacon["rssi"]) for beacon in second_strongest_beacons])
+            print("second strongest: ")
+            print(second_rssis)
+
+            lat4, lon4, d4 = second_strongest_beacons[0]["lat"], second_strongest_beacons[0]["lon"], calculate_distance(second_strongest_beacons[0]["rssi"])
+            lat5, lon5, d5 = second_strongest_beacons[1]["lat"], second_strongest_beacons[1]["lon"], calculate_distance(second_strongest_beacons[1]["rssi"])
+            lat6, lon6, d6 = second_strongest_beacons[2]["lat"], second_strongest_beacons[2]["lon"], calculate_distance(second_strongest_beacons[2]["rssi"])
+
+            x4, y4 = latlon_to_cartesian(lat4, lon4)
+            x5, y5 = latlon_to_cartesian(lat5, lon5)
+            x6, y6 = latlon_to_cartesian(lat6, lon6)
+
+            x_second, y_second = calculate_trilateration(x4, y4, d4, x5, y5, d5, x6, y6, d6)
+
+            lat_second, lon_second = cartesian_to_latlon(x_second, y_second)
+            print(f"Second trilateration result (second strongest): {lat_second}, {lon_second}")
+
+            # Weigh the first trilateration result 2x, and the second 1x, and take the average
+            final_lat = (2 * lat_strong + lat_second) / 3
+            final_lon = (2 * lon_strong + lon_second) / 3
+
+            print(f"Final weighted trilateration result: {final_lat}, {final_lon}")
+            return final_lat, final_lon
+        else:
+            # If there are less than 6 beacons, return the result from the three strongest
+            print(f"Not enough beacons for second calculation. Returning strongest trilateration result.")
+            return lat_strong, lon_strong
     else:
-        print(
-            f"Less than 3 known beacons detected. Skipping trilateration. (Found {len(matched_beacons)} known beacons)")
+        print(f"Less than 3 known beacons detected. Skipping trilateration. (Found {len(filtered_beacons)} known beacons)")
         return None

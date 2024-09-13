@@ -5,8 +5,8 @@ MAP_WIDTH = 1518
 MAP_HEIGHT = 685
 
 # These coordinates are the closest to what I could get of the corners of the Zilverling building
-top_left = (52.239610, 6.856340)
-bottom_right = (52.239120, 6.856850)
+top_left = (52.23941618890799, 6.856316601241173) # 52.23941618890799, 6.856316601241173
+bottom_right = (52.239159921931375, 6.856622529840652) # 52.239159921931375, 6.856622529840652
 
 screen = None
 marker = None

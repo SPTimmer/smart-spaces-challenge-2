@@ -1,0 +1,20 @@
+KNOWN_BEACONS_ZILVERLING = [
+{"id":147  , "name":"Beacon_147"  , "mac":"C2:8F:DF:51:4E:AF", "longitude":6.85650, "latitude": 52.23923, "floor": 5, "room": 5013},
+{"id":118  , "name":"Beacon_118"  , "mac":"C7:75:AB:1D:6A:DE", "longitude":6.85647, "latitude": 52.23924, "floor": 5, "room": 5011},
+{"id":113  , "name":"Beacon_113"  , "mac":"C9:1E:7D:BD:75:53", "longitude":6.85631, "latitude": 52.23930, "floor": 5, "room": 5003},
+{"id":102  , "name":"Beacon_102"  , "mac":"CA:02:32:D2:A1:83", "longitude":6.85630, "latitude": 52.23937, "floor": 5, "room": 5002},
+{"id":106  , "name":"Beacon_106"  , "mac":"CB:23:BF:8F:F5:5A", "longitude":6.85633, "latitude": 52.23939, "floor": 5, "room": 5006},
+{"id":53530, "name":"Beacon_53530", "mac":"D0:2A:B7:EC:6C:44", "longitude":6.85639, "latitude": 52.23927, "floor": 5, "room": 5007},
+{"id":123  , "name":"Beacon_123"  , "mac":"D3:D8:22:EE:40:90", "longitude":6.85625, "latitude": 52.23935, "floor": 5, "room": 5001},
+{"id":53720, "name":"Beacon_53720", "mac":"D6:CA:74:F4:6F:BB", "longitude":6.85635, "latitude": 52.23929, "floor": 5, "room": 5005},
+{"id":53717, "name":"Beacon_53717", "mac":"DD:E2:E3:22:2C:27", "longitude":6.85654, "latitude": 52.23921, "floor": 5, "room": 5015},
+{"id":146  , "name":"Beacon_146"  , "mac":"DE:A7:4A:B9:AC:6A", "longitude":6.85637, "latitude": 52.23937, "floor": 5, "room": 5006},
+{"id":53721, "name":"Beacon_53721", "mac":"DE:AE:F9:8E:93:1D", "longitude":6.85642, "latitude": 52.23935, "floor": 5, "room": 5010},
+{"id":53516, "name":"Beacon_53516", "mac":"E1:11:5E:46:41:31", "longitude":6.85646, "latitude": 52.23934, "floor": 5, "room": 5016},
+{"id":95580, "name":"Beacon_95580", "mac":"E4:D7:BA:CB:2C:F8", "longitude":6.85663, "latitude": 52.23927, "floor": 5, "room": 5034},
+{"id":53515, "name":"Beacon_53515", "mac":"E7:97:7E:48:E3:F1", "longitude":6.85643, "latitude": 52.23926, "floor": 5, "room": 5009},
+{"id":95583, "name":"Beacon_95583", "mac":"E8:FF:61:EE:EE:A6", "longitude":6.85659, "latitude": 52.23930, "floor": 5, "room": 5024},
+{"id":103  , "name":"Beacon_103"  , "mac":"E9:79:FC:4C:5E:77", "longitude":6.85669, "latitude": 52.23916, "floor": 5, "room": 5023},
+{"id":132  , "name":"Beacon_132"  , "mac":"F8:DE:B9:18:55:ED", "longitude":6.85661, "latitude": 52.23928, "floor": 5, "room": 5032},
+{"id":110  , "name":"Beacon_110"  , "mac":"FC:00:55:AC:AE:12", "longitude":6.85651, "latitude": 52.23932, "floor": 5, "room": 5022}
+]
